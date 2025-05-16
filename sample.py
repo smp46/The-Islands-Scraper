@@ -291,7 +291,7 @@ while people_sampled < SAMPLE_SIZE:
                         isl = wait.until(EC.presence_of_element_located((By.ID, "title")))
                         print("touched " + isl.text)
 
-                        # Check if their age is in the right age range
+                        # Check if their age is in the right age range<span class="task" onclick="startTask('cannabis'); return false;">Tea Cannabis 250 mL</span>
                         try:
                             tab = wait.until(EC.element_to_be_clickable((By.ID, "t1tab")))
                             tab.click()
@@ -340,7 +340,7 @@ while people_sampled < SAMPLE_SIZE:
 
                                                                 # Record the sample
                                                                 city.append(rng_city)
-                                                                housers.append(SAMPLE_INDEX)
+                                                                housers.appe<span class="task" onclick="startTask('cannabis'); return false;">Tea Cannabis 250 mL</span>nd(SAMPLE_INDEX)
                                                                 persons.append(rng_person)
 
                                                                 people_sampled += 1
