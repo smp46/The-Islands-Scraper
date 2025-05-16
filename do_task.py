@@ -427,6 +427,42 @@ task_menu = {
 ################################################################################################################
 
 
+def click_with_javascript(driver, element):
+    """Use JavaScript to click an element that might not be directly interactable"""
+    try:
+        driver.execute_script("arguments[0].click();", element)
+        return True
+    except Exception as e:
+        print(f"JavaScript click failed: {e}")
+        return False
+
+
+def toggle_submenu(driver, menu_id):
+    """Toggle a submenu open using JavaScript"""
+    try:
+        script = f"if(document.getElementById('tasks{menu_id}')) {{ document.getElementById('tasks{menu_id}').style.display = 'block'; }}"
+        driver.execute_script(script)
+        time.sleep(0.5)
+        return True
+    except Exception as e:
+        print(f"Failed to toggle submenu: {e}")
+        return False
+
+
+def search_tasks(query):
+    """Search for tasks containing the query string (case-insensitive)"""
+    results = []
+    query = query.lower()
+
+    for category in task_menu:
+        if "tasks" in task_menu[category]:
+            tasks = task_menu[category]["tasks"]
+            for task_name, task_code in tasks.items():
+                if query in task_name.lower() or query in task_code.lower():
+                    results.append((category, task_name, task_code))
+    return results[0]
+
+
 def verify_task_started(driver):
     """Check if a task has started by looking for the progress canvas"""
     try:
@@ -508,15 +544,15 @@ else:
 
 # Load the sample data from CSV
 try:
-    df = pd.read_csv("participants_ids.csv")
+    df = pd.read_csv("participant_ids.csv")
     city_index = df["city_index"]
     sample_index = df["sample_index"]
     person_index = df["person_index"]
 
     SAMPLE_SIZE = len(df)
-    print(f"Loaded {SAMPLE_SIZE} samples from participants_ids.csv")
+    print(f"Loaded {SAMPLE_SIZE} samples from participant_ids.csv")
 except FileNotFoundError:
-    print("Error: participants_ids.csv not found. Please create this file first.")
+    print("Error: participants_id.csv not found. Please create this file first.")
     driver.quit()
     exit(1)
 except Exception as e:
@@ -531,6 +567,13 @@ except Exception as e:
 
 def show_task_menu():
     """Display the task menu and get user selection"""
+    try:
+        if len(sys.argv) == 2:
+            print("Using program argument as task.")
+            return search_tasks(sys.argv[1])
+    except:
+        print("Unable to find", sys.argv[1])
+
     print("\n" + "=" * 70)
     print("ISLAND TASK MENU".center(70))
     print("=" * 70)
@@ -574,6 +617,7 @@ def show_task_menu():
 
             task_index = int(task_choice) - 1
             if 0 <= task_index < len(tasks):
+                category = selected_category
                 selected_task = tasks[task_index]
                 task_code = task_menu[selected_category]["tasks"][selected_task]
                 break
@@ -582,14 +626,14 @@ def show_task_menu():
         except ValueError:
             print("Please enter a number.")
 
-    return selected_task, task_code
+    return category, selected_task, task_code
 
 
 print("Welcome to the Islands Task Runner")
 print(
     "This script will run your selected task on participants from participants_ids.csv"
 )
-selected_task, task_code = show_task_menu()
+category, selected_task, task_code = show_task_menu()
 
 if not selected_task or not task_code:
     print("Task selection cancelled. Exiting...")
@@ -597,13 +641,14 @@ if not selected_task or not task_code:
     exit(0)
 
 # Confirm selection
-confirm = input(f"\nYou selected: {selected_task} ({task_code})\nProceed? (y/n): ")
-if confirm.lower() != "y":
-    print("Task cancelled. Exiting...")
-    driver.quit()
-    exit(0)
+if len(sys.argv) == 1:
+    confirm = input(f"\nYou selected: {selected_task} ({task_code})\nProceed? (y/n): ")
+    if confirm.lower() != "y":
+        print("Task cancelled. Exiting...")
+        driver.quit()
+        exit(0)
 
-print(f"\nPreparing to run task: {selected_task}")
+print(f"\nPreparing to run task: {selected_task}, with code: {task_code}")
 time.sleep(1)
 
 ################################################################################################################
@@ -745,25 +790,39 @@ for df_count in range(0, SAMPLE_SIZE):
 
             # Run the task
             try:
-                # Look for the specified task
-                task_span = None
+                # Make sure task menu is displayed
+                task_menu_element = driver.find_element(By.ID, "task_menu")
+                if task_menu_element.get_attribute("style") == "display: none":
+                    driver.execute_script(
+                        "document.getElementById('task_menu').style.display = 'block';"
+                    )
+                    time.sleep(0.5)
 
-                # First look in all potential task locations
+                # For Blood Adrenaline, we need to open the "Blood Tests" submenu
+                toggle_submenu(driver, "blood")
+                time.sleep(1)
+
+                # Look for the task span
+                task_span = None
                 try:
                     task_spans = driver.find_elements(
                         By.XPATH,
                         f"//span[contains(@onclick, \"startTask('{task_code}')\")]",
                     )
-
                     if task_spans:
                         task_span = task_spans[0]
                 except:
                     pass
 
-                # Click the task if found
+                # Click the task if found using JavaScript
                 if task_span:
                     print(f"Found {selected_task}, clicking...")
-                    task_span.click()
+                    # Use JavaScript to click instead of direct click
+                    if click_with_javascript(driver, task_span):
+                        print("Used JavaScript click")
+                    else:
+                        print("JavaScript click failed, trying regular click")
+                        task_span.click()
                     time.sleep(2)
 
                     # Check for the specific detail box that shows the task has started

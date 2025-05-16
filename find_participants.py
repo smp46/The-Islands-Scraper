@@ -482,7 +482,11 @@ data = pd.DataFrame(
 )
 
 print(data.head())
-data.to_csv("participants_ids.csv")
+try:
+    data.to_csv("participant_ids.csv")
+except:
+    print("Unable to save participant_ids, so here they are: \n")
+    print(data)
 
 end_time = time.time()
 
