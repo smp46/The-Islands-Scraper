@@ -30,29 +30,82 @@ start_time = time.time()
 ## LOGIN
 ################################################################################################################
 
+# Setup Chrome options
 chrome_options = Options()
 chrome_options.add_experimental_option("detach", True)
+chrome_options.add_argument("--start-maximized")  # Keep the maximized window setting
 
+# Initialize the driver
 driver = webdriver.Chrome(options=chrome_options)
 
+# Read session cookie from file
+try:
+    with open('session_cookie', 'r') as cookie_file:
+        session_id = cookie_file.read().strip()
+        print(f"Read session ID from file: {session_id}")
+except FileNotFoundError:
+    print("Error: session_cookie file not found. Please create this file with your session ID.")
+    driver.quit()
+    exit(1)
+except Exception as e:
+    print(f"Error reading session_cookie file: {e}")
+    driver.quit()
+    exit(1)
+
+# Check if session ID is empty
+if not session_id:
+    print("Error: session_cookie file is empty. Please add your session ID to this file.")
+    driver.quit()
+    exit(1)
+
+# Navigate to the login page
 driver.get("https://islands.smp.uq.edu.au/login.php")
 
+# Wait for page to load
 driver.implicitly_wait(1)
 
-email = driver.find_elements(by=By.TAG_NAME, value="input")
+# Get the current PHPSESSID cookie (if it exists)
+phpsessid_cookie = driver.get_cookie("PHPSESSID")
+print(phpsessid_cookie)
 
-login = open('passwords.config', 'r')
-usrpass = [line.rstrip('\n') for line in login]
+# If the cookie doesn't exist yet, create a new one
+if not phpsessid_cookie:
+    print("PHPSESSID cookie not found, creating new one")
+    # Use session ID from file
+    driver.add_cookie({
+        'name': 'PHPSESSID',
+        'value': session_id,
+        'path': '/',
+        'domain': 'islands.smp.uq.edu.au'
+    })
+else:
+    # Modify the existing cookie
+    print(f"Found existing PHPSESSID: {phpsessid_cookie['value']}")
+    # Replace with session ID from file
+    driver.delete_cookie("PHPSESSID")
+    driver.add_cookie({
+        'name': 'PHPSESSID',
+        'value': session_id,
+        'path': '/',
+        'domain': 'islands.smp.uq.edu.au'
+    })
 
+# Verify the cookie was set
+updated_cookie = driver.get_cookie("PHPSESSID")
+print(f"Updated PHPSESSID: {updated_cookie['value']}")
 
-email[0].send_keys(usrpass[1])
-email[1].send_keys(usrpass[2])
+# Refresh the page to apply the cookie
+driver.get("https://islands.smp.uq.edu.au/index.php")
+driver.implicitly_wait(3)
 
-email[2].click()
+# Check if login was successful
+if "login.php" in driver.current_url:
+    print("Login failed - still on login page. Check if your session ID is valid.")
+    driver.quit()
+    exit(1)
+else:
+    print("Successfully logged in!")
 
-logURL = "https://islands.smp.uq.edu.au/index.php"
-
-assert(driver.current_url == logURL)
 
 ################################################################################################################
 ## ENUMERATE CONSTANTS AND GLOBAL VARS(LOAD INDEX DATA TOO)
