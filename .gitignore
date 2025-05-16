@@ -1,8 +1,10 @@
 /passwords.config
 /file1.csv
 /output.csv
+/session_cookie
 session_cookie
 cache
+/cache
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
