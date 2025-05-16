@@ -136,7 +136,7 @@ gender_vec = []
 island_vec = []
 house_num_vec = []
 education_vec = []
-iq_vec = []
+ruler_vec = []
 income_vec = []
 
 ################################################################################################################
@@ -215,7 +215,7 @@ for df_count in range(0, SAMPLE_SIZE):
     island = "NA"
     house_num = 0
     education_level = "NA"
-    iq = 0
+    ruler = 0
     income = 0
 
     ### format 
@@ -226,7 +226,7 @@ for df_count in range(0, SAMPLE_SIZE):
         "island": island_vec,
         "house_num": house_num_vec,
         "education_level": education_vec,
-        "iq": "iq_vec,
+        "ruler": "ruler_vec,
         "income": income_vec,
     '''
 
@@ -281,13 +281,13 @@ for df_count in range(0, SAMPLE_SIZE):
             house_num = location[3]
         temp+=1
 
-    ########## define iq
+    ########## define ruler
     tab = driver.find_element(By.ID, "t2tab")
     tab.click()
 
     driver.implicitly_wait(3)
  
-    iq = driver.find_elements(By.CLASS_NAME, "taskresultresult")[0].text
+    ruler = driver.find_elements(By.CLASS_NAME, "taskresultresult")[0].text
 
     ########## define gender
     tab = driver.find_element(By.ID, "t3tab")
@@ -298,7 +298,7 @@ for df_count in range(0, SAMPLE_SIZE):
     submit_chat.click()
     driver.implicitly_wait(3)
 
-    response = driver.find_elements(By.CLASS_NAME, "chatbot")[-1].text
+    response = driver.find_elements(By.CLASS_NAME, "chatbot")[0].text
     if response == "I am male.":
         gender = "male"
     if response == "I am female.":
@@ -314,7 +314,7 @@ for df_count in range(0, SAMPLE_SIZE):
     island_vec.append(island)
     house_num_vec.append(house_num)
     education_vec.append(education_level)
-    iq_vec.append(iq)
+    ruler_vec.append(ruler)
     income_vec.append(income)
 
 
@@ -347,7 +347,7 @@ data = pd.DataFrame(
         "island": island_vec,
         "house_num": house_num_vec,
         "education_level": education_vec,
-        "iq": iq_vec,
+        "ruler": ruler_vec,
         "income": income_vec,
     }
 )

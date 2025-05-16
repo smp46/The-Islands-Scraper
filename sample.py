@@ -1,12 +1,6 @@
 #!/usr/bin/env python3
 
-'''
-Random Sampling Function:
-- Choose a random city, a random house, and a random person 
-- If the person isnt a working class citizen(age 15 to 64), then redraw
-- If participant declines, then redraw
-- obtain n = 220 samples
-'''
+SAMPLE_SIZE = 30
 
 ################################################################################################################
 ## IMPORTS
@@ -113,7 +107,7 @@ else:
 ## ENUMERATE CONSTANTS AND GLOBAL VARS
 ################################################################################################################
 
-SAMPLE_SIZE = 30
+
 people_sampled = 0
 
 # Use WebDriverWait to ensure elements are loaded
