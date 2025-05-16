@@ -1,4 +1,4 @@
-# The Islanders Scraper
+# The Islands Scraper
 Faithful fork of the very based [island-scrape by BryanMui1](https://github.com/BryanMui1/island-scrape/).
 
 The Islanders Scraper is a scraping tool built for the statistical simulation website [The Islands](https://islands.smp.uq.edu.au/login.php), it is a python script that allows researchers to automate sample collection. 
