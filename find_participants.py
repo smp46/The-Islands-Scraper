@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 SAMPLE_SIZE = 30
+MINIMUM_AGE = 18
+MAXIMUM_AGE = 64
 
 ################################################################################################################
 ## IMPORTS
@@ -13,7 +15,11 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
+from selenium.common.exceptions import (
+    TimeoutException,
+    NoSuchElementException,
+    StaleElementReferenceException,
+)
 
 import numpy as np
 import pandas as pd
@@ -37,11 +43,13 @@ driver = webdriver.Chrome(options=chrome_options)
 
 # Read session cookie from file
 try:
-    with open('session_cookie', 'r') as cookie_file:
+    with open("session_cookie", "r") as cookie_file:
         session_id = cookie_file.read().strip()
         print(f"Read session ID from file: {session_id}")
 except FileNotFoundError:
-    print("Error: session_cookie file not found. Please create this file with your session ID.")
+    print(
+        "Error: session_cookie file not found. Please create this file with your session ID."
+    )
     driver.quit()
     exit(1)
 except Exception as e:
@@ -51,7 +59,9 @@ except Exception as e:
 
 # Check if session ID is empty
 if not session_id:
-    print("Error: session_cookie file is empty. Please add your session ID to this file.")
+    print(
+        "Error: session_cookie file is empty. Please add your session ID to this file."
+    )
     driver.quit()
     exit(1)
 
@@ -69,23 +79,27 @@ print(phpsessid_cookie)
 if not phpsessid_cookie:
     print("PHPSESSID cookie not found, creating new one")
     # Use session ID from file
-    driver.add_cookie({
-        'name': 'PHPSESSID',
-        'value': session_id,
-        'path': '/',
-        'domain': 'islands.smp.uq.edu.au'
-    })
+    driver.add_cookie(
+        {
+            "name": "PHPSESSID",
+            "value": session_id,
+            "path": "/",
+            "domain": "islands.smp.uq.edu.au",
+        }
+    )
 else:
     # Modify the existing cookie
     print(f"Found existing PHPSESSID: {phpsessid_cookie['value']}")
     # Replace with session ID from file
     driver.delete_cookie("PHPSESSID")
-    driver.add_cookie({
-        'name': 'PHPSESSID',
-        'value': session_id,
-        'path': '/',
-        'domain': 'islands.smp.uq.edu.au'
-    })
+    driver.add_cookie(
+        {
+            "name": "PHPSESSID",
+            "value": session_id,
+            "path": "/",
+            "domain": "islands.smp.uq.edu.au",
+        }
+    )
 
 # Verify the cookie was set
 updated_cookie = driver.get_cookie("PHPSESSID")
@@ -112,7 +126,11 @@ people_sampled = 0
 
 # Use WebDriverWait to ensure elements are loaded
 wait = WebDriverWait(driver, 10)
-cities = wait.until(EC.presence_of_all_elements_located((By.XPATH, '//a[starts-with(@href, "village")]')))
+cities = wait.until(
+    EC.presence_of_all_elements_located(
+        (By.XPATH, '//a[starts-with(@href, "village")]')
+    )
+)
 NUM_CITIES = len(cities)
 
 buttons = []
@@ -123,29 +141,31 @@ for j in cities:
         buttons.append(button)
     except NoSuchElementException:
         try:
-            button = j.find_element(By.XPATH, './/div[starts-with(@class, "towndot towndot")]')
+            button = j.find_element(
+                By.XPATH, './/div[starts-with(@class, "towndot towndot")]'
+            )
             buttons.append(button)
         except NoSuchElementException:
             print(f"Warning: Could not find button for city {j.get_attribute('href')}")
 
 print(f"Found {len(buttons)} city buttons out of {NUM_CITIES} cities")
-assert(len(buttons) > 0)  # Still need some buttons!
+assert len(buttons) > 0  # Still need some buttons!
 
-city = [] #rng_city
-housers = [] #SAMPLE_INDEX
-persons = [] #rng_person
+city = []  # rng_city
+housers = []  # SAMPLE_INDEX
+persons = []  # rng_person
 
 ################################################################################################################
 ## LOAD CACHE
 ################################################################################################################
 
 try:
-    cache_file = open(r'cache', 'rb')
+    cache_file = open(r"cache", "rb")
     cache = pickle.load(cache_file)
     cache_file.close()
     # cache check assertion
     print(f"Loaded cache with {len(cache)} cities")
-    assert(len(cache) == NUM_CITIES)
+    assert len(cache) == NUM_CITIES
 except (FileNotFoundError, AssertionError) as e:
     print(f"Error loading cache: {e}")
     exit(1)
@@ -157,14 +177,17 @@ except (FileNotFoundError, AssertionError) as e:
 while people_sampled < SAMPLE_SIZE:
     try:
         # generate a random city
-        rng_city = np.random.randint(0, high=NUM_CITIES-1)
+        rng_city = np.random.randint(0, high=NUM_CITIES - 1)
 
         ## window check 1
         # Store the ID of the original window
         original_window = driver.current_window_handle
 
         # Loop through until we find a new window handle
-        if driver.current_window_handle == original_window and len(driver.window_handles) > 1:
+        if (
+            driver.current_window_handle == original_window
+            and len(driver.window_handles) > 1
+        ):
             driver.close()
 
         driver.switch_to.window(driver.window_handles[0])
@@ -180,17 +203,25 @@ while people_sampled < SAMPLE_SIZE:
 
         # Re-fetch cities and buttons as they might be stale
         wait = WebDriverWait(driver, 10)
-        cities = wait.until(EC.presence_of_all_elements_located((By.XPATH, '//a[starts-with(@href, "village")]')))
+        cities = wait.until(
+            EC.presence_of_all_elements_located(
+                (By.XPATH, '//a[starts-with(@href, "village")]')
+            )
+        )
         buttons = []
 
         # Try both possible button class patterns
         for j in cities:
             try:
-                button = j.find_element(By.XPATH, './/div[starts-with(@class, "town town")]')
+                button = j.find_element(
+                    By.XPATH, './/div[starts-with(@class, "town town")]'
+                )
                 buttons.append(button)
             except NoSuchElementException:
                 try:
-                    button = j.find_element(By.XPATH, './/div[starts-with(@class, "towndot towndot")]')
+                    button = j.find_element(
+                        By.XPATH, './/div[starts-with(@class, "towndot towndot")]'
+                    )
                     buttons.append(button)
                 except NoSuchElementException:
                     continue
@@ -204,7 +235,9 @@ while people_sampled < SAMPLE_SIZE:
             click_btn.perform()
             time.sleep(2)  # Give time for page to load
         else:
-            print(f"City index {rng_city} is out of range for buttons array (len={len(buttons)})")
+            print(
+                f"City index {rng_city} is out of range for buttons array (len={len(buttons)})"
+            )
             continue
 
         ## window check 2
@@ -212,7 +245,10 @@ while people_sampled < SAMPLE_SIZE:
         original_window = driver.current_window_handle
 
         # Loop through until we find a new window handle
-        if driver.current_window_handle == original_window and len(driver.window_handles) > 1:
+        if (
+            driver.current_window_handle == original_window
+            and len(driver.window_handles) > 1
+        ):
             driver.close()
 
         driver.switch_to.window(driver.window_handles[0])
@@ -222,7 +258,9 @@ while people_sampled < SAMPLE_SIZE:
 
         # Get houses with proper wait
         try:
-            houses = wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, "house")))
+            houses = wait.until(
+                EC.presence_of_all_elements_located((By.CLASS_NAME, "house"))
+            )
             ids = driver.find_elements(By.CLASS_NAME, "houseid")
 
             # Find the number of houses
@@ -256,7 +294,9 @@ while people_sampled < SAMPLE_SIZE:
                     houses[SAMPLE_INDEX].click()
                     time.sleep(1)
                 else:
-                    print(f"House index {SAMPLE_INDEX} out of range (max={len(houses)-1})")
+                    print(
+                        f"House index {SAMPLE_INDEX} out of range (max={len(houses)-1})"
+                    )
                     driver.get("https://islands.smp.uq.edu.au/index.php")
                     time.sleep(2)
                     continue
@@ -268,8 +308,11 @@ while people_sampled < SAMPLE_SIZE:
 
             # Find residents with proper waiting
             try:
-                resident_links = wait.until(EC.presence_of_all_elements_located(
-                    (By.XPATH, '//a[starts-with(@href, "islander.php")]')))
+                resident_links = wait.until(
+                    EC.presence_of_all_elements_located(
+                        (By.XPATH, '//a[starts-with(@href, "islander.php")]')
+                    )
+                )
                 num_residents = len(resident_links)
 
                 if num_residents == 0:
@@ -281,89 +324,89 @@ while people_sampled < SAMPLE_SIZE:
                     if num_residents == 1:
                         rng_person = 0
                     else:
-                        rng_person = np.random.randint(low=0, high=num_residents-1)
+                        rng_person = np.random.randint(low=0, high=num_residents - 1)
 
                     resident_links[rng_person].click()
                     time.sleep(2)
 
                     # Get the name of the person
                     try:
-                        isl = wait.until(EC.presence_of_element_located((By.ID, "title")))
+                        isl = wait.until(
+                            EC.presence_of_element_located((By.ID, "title"))
+                        )
                         print("touched " + isl.text)
 
                         # Check if their age is in the right age range<span class="task" onclick="startTask('cannabis'); return false;">Tea Cannabis 250 mL</span>
                         try:
-                            tab = wait.until(EC.element_to_be_clickable((By.ID, "t1tab")))
+                            tab = wait.until(
+                                EC.element_to_be_clickable((By.ID, "t1tab"))
+                            )
                             tab.click()
                             time.sleep(1)
 
-                            summary = driver.find_elements(By.XPATH, '//tr')
+                            summary = driver.find_elements(By.XPATH, "//tr")
                             if len(summary) > 1:
                                 age_text = summary[1].text.split()
                                 if len(age_text) > 0:
                                     age = int(age_text[0])
 
-                                    if age >= 18 and age <= 64:
+                                    if age >= MINIMUM_AGE and age <= MAXIMUM_AGE:
                                         # Click the "Tasks" tab
                                         try:
-                                            tab = wait.until(EC.element_to_be_clickable((By.ID, "t2tab")))
+                                            tab = wait.until(
+                                                EC.element_to_be_clickable(
+                                                    (By.ID, "t2tab")
+                                                )
+                                            )
                                             tab.click()
                                             time.sleep(1)
 
                                             # Try to get consent
                                             try:
-                                                obtain_elements = driver.find_elements(By.ID, "obtain")
+                                                obtain_elements = driver.find_elements(
+                                                    By.ID, "obtain"
+                                                )
 
                                                 if len(obtain_elements) > 0:
                                                     try:
-                                                        obtain = wait.until(EC.element_to_be_clickable(
-                                                            (By.XPATH, '//a[starts-with(@href, "javascript:getConsent")]')))
+                                                        obtain = wait.until(
+                                                            EC.element_to_be_clickable(
+                                                                (
+                                                                    By.XPATH,
+                                                                    '//a[starts-with(@href, "javascript:getConsent")]',
+                                                                )
+                                                            )
+                                                        )
                                                         obtain.click()
                                                         time.sleep(1)
 
                                                         # Check if consent was given
-                                                        task_result = driver.find_elements(By.CLASS_NAME, "taskresulttask")
-                                                        if task_result and "consented" in task_result[-1].text:
+                                                        task_result = (
+                                                            driver.find_elements(
+                                                                By.CLASS_NAME,
+                                                                "taskresulttask",
+                                                            )
+                                                        )
+                                                        if (
+                                                            task_result
+                                                            and "consented"
+                                                            in task_result[-1].text
+                                                        ):
                                                             print("consented")
-
-                                                            # Look for tasks_recent with explicit wait and error handling
-                                                            try:
-                                                                # Wait for the tasksrecent element to be present
-                                                                tasks_recent = wait.until(
-                                                                    EC.presence_of_element_located((By.ID, "tasksrecent")))
-
-                                                                # Wait for the IQ test button to be clickable
-                                                                ruler_test = wait.until(EC.element_to_be_clickable(
-                                                                    (By.XPATH, """//span[@onclick="startTask('ruler'); return false;"]""")))
-                                                                ruler_test.click()
-                                                                time.sleep(1)
-
-                                                                # Record the sample
-                                                                city.append(rng_city)
-                                                                housers.appe<span class="task" onclick="startTask('cannabis'); return false;">Tea Cannabis 250 mL</span>nd(SAMPLE_INDEX)
-                                                                persons.append(rng_person)
-
-                                                                people_sampled += 1
-                                                                print(f"Successfully sampled person {people_sampled}/{SAMPLE_SIZE}")
-
-                                                            except (TimeoutException, NoSuchElementException) as e:
-                                                                print(f"Error with tasks section: {e}")
-                                                                # Try to navigate back to start over
-                                                                try:
-                                                                    island_home = driver.find_element(By.CLASS_NAME, "menu")
-                                                                    island_home.click()
-                                                                    time.sleep(2)
-                                                                except:
-                                                                    driver.get("https://islands.smp.uq.edu.au/index.php")
-                                                                    time.sleep(2)
                                                         else:
-                                                            print("Person declined. sample again")
+                                                            print(
+                                                                "Person declined. sample again"
+                                                            )
                                                     except Exception as e:
-                                                        print(f"Error getting consent: {e}")
+                                                        print(
+                                                            f"Error getting consent: {e}"
+                                                        )
                                                 else:
                                                     print("No obtain element found")
                                             except Exception as e:
-                                                print(f"Error with consent section: {e}")
+                                                print(
+                                                    f"Error with consent section: {e}"
+                                                )
                                         except Exception as e:
                                             print(f"Error with tasks tab: {e}")
                                     else:
@@ -411,11 +454,11 @@ data = pd.DataFrame(
 )
 
 print(data.head())
-data.to_csv('sample_index.csv')
+data.to_csv("sample_index.csv")
 
 end_time = time.time()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     execution_time = end_time - start_time
     print("Script completed normally.")
     print("Script runtime: " + str(datetime.timedelta(seconds=execution_time)))
@@ -423,4 +466,3 @@ if __name__ == '__main__':
 
     time.sleep(10)
     driver.close()
-
