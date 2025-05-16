@@ -29,16 +29,22 @@ import pickle
 ################################################################################################################
 ## ENTER VARIABLES
 ################################################################################################################
-print(
-    "\nYou will now be asked to enter the number of, the minimum age and the maximum age of your participants."
-)
+
 
 try:
-    SAMPLE_SIZE = int(
-        input("\nPlease enter the number of participants you want to find: ")
-    )
-    MINIMUM_AGE = int(input("Please enter the minimum age for your participants: "))
-    MAXIMUM_AGE = int(input("Please enter the maximum age of your participants: "))
+    if len(sys.argv) == 4:
+        SAMPLE_SIZE = int(sys.argv[1])
+        MINIMUM_AGE = int(sys.argv[2])
+        MAXIMUM_AGE = int(sys.argv[3])
+    else:
+        print(
+            "\nYou will now be asked to enter the number of, the minimum age and the maximum age of your participants."
+        )
+        SAMPLE_SIZE = int(
+            input("\nPlease enter the number of participants you want to find: ")
+        )
+        MINIMUM_AGE = int(input("Please enter the minimum age for your participants: "))
+        MAXIMUM_AGE = int(input("Please enter the maximum age of your participants: "))
 
     if SAMPLE_SIZE != 0 and MINIMUM_AGE >= 0 and MAXIMUM_AGE >= MINIMUM_AGE:
         print(
@@ -51,7 +57,6 @@ try:
 except:
     print("Invalid input received. Exiting.")
     sys.exit()
-
 
 ################################################################################################################
 
@@ -421,6 +426,13 @@ while people_sampled < SAMPLE_SIZE:
                                                             in task_result[-1].text
                                                         ):
                                                             print("consented")
+                                                            people_sampled += 1
+                                                            city.append(rng_city)
+                                                            housers.append(SAMPLE_INDEX)
+                                                            persons.append(rng_person)
+                                                            print(
+                                                                f"Sampled {people_sampled} of {SAMPLE_SIZE} people"
+                                                            )
                                                         else:
                                                             print(
                                                                 "Person declined. sample again"
