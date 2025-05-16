@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
 
-SAMPLE_SIZE = 30
-MINIMUM_AGE = 18
-MAXIMUM_AGE = 64
 
 ################################################################################################################
 ## IMPORTS
@@ -25,7 +22,38 @@ import numpy as np
 import pandas as pd
 import time
 import datetime
+import sys
 import pickle
+
+
+################################################################################################################
+## ENTER VARIABLES
+################################################################################################################
+print(
+    "\nYou will now be asked to enter the number of, the minimum age and the maximum age of your participants."
+)
+
+try:
+    SAMPLE_SIZE = int(
+        input("\nPlease enter the number of participants you want to find: ")
+    )
+    MINIMUM_AGE = int(input("Please enter the minimum age for your participants: "))
+    MAXIMUM_AGE = int(input("Please enter the maximum age of your participants: "))
+
+    if SAMPLE_SIZE != 0 and MINIMUM_AGE >= 0 and MAXIMUM_AGE >= MINIMUM_AGE:
+        print(
+            "Ok, Chrome will now open and participants will be found to match your criteria."
+        )
+    else:
+        print("Invalid input received. Exiting.")
+        sys.exit()
+
+except:
+    print("Invalid input received. Exiting.")
+    sys.exit()
+
+
+################################################################################################################
 
 start_time = time.time()
 

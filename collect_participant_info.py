@@ -539,14 +539,14 @@ print(data.head())
 
 # Save data as we go - create a backup in case the script crashes
 try:
-    data.to_csv("data1.csv")
-    print("Data saved successfully to data1.csv")
+    data.to_csv("participant_info.csv")
+    print("Data saved successfully to participant_info.csv")
 except Exception as e:
     print(f"Error saving data: {e}")
     # Try to save to a backup location
     try:
-        data.to_csv("data1_backup.csv")
-        print("Data saved to backup file data1_backup.csv")
+        data.to_csv("participant_info_backup.csv")
+        print("Data saved to backup file participant_info_backup.csv")
     except:
         print("Could not save data to backup file")
 
