@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Script to run tasks on participants from sample_index.csv with complete task menu
+Script to run tasks on participants from participants_ids.csv with complete task menu
 """
 
 ################################################################################################################
@@ -508,15 +508,15 @@ else:
 
 # Load the sample data from CSV
 try:
-    df = pd.read_csv("sample_index.csv")
+    df = pd.read_csv("participants_ids.csv")
     city_index = df["city_index"]
     sample_index = df["sample_index"]
     person_index = df["person_index"]
 
     SAMPLE_SIZE = len(df)
-    print(f"Loaded {SAMPLE_SIZE} samples from sample_index.csv")
+    print(f"Loaded {SAMPLE_SIZE} samples from participants_ids.csv")
 except FileNotFoundError:
-    print("Error: sample_index.csv not found. Please create this file first.")
+    print("Error: participants_ids.csv not found. Please create this file first.")
     driver.quit()
     exit(1)
 except Exception as e:
@@ -586,7 +586,9 @@ def show_task_menu():
 
 
 print("Welcome to the Islands Task Runner")
-print("This script will run your selected task on participants from sample_index.csv")
+print(
+    "This script will run your selected task on participants from participants_ids.csv"
+)
 selected_task, task_code = show_task_menu()
 
 if not selected_task or not task_code:

@@ -28,8 +28,27 @@ from selenium.common.exceptions import (
 import pandas as pd
 import time
 import datetime
+import os
 
 start_time = time.time()
+
+################################################################################################################
+## HELPERS
+################################################################################################################
+
+
+# Save data as we go with automatic file numbering
+def get_available_filename(base_name, extension=".csv"):
+    """Find an available filename by appending numbers if the file exists"""
+    if not os.path.exists(f"{base_name}{extension}"):
+        return f"{base_name}{extension}"
+
+    counter = 1
+    while os.path.exists(f"{base_name}{counter}{extension}"):
+        counter += 1
+
+    return f"{base_name}{counter}{extension}"
+
 
 ################################################################################################################
 ## LOGIN
@@ -127,7 +146,7 @@ wait = WebDriverWait(driver, 10)
 ################################################################################################################
 
 # making dataframe
-df = pd.read_csv("sample_index.csv")
+df = pd.read_csv("participant_ids.csv")
 city_index = df["city_index"]
 sample_index = df["sample_index"]
 person_index = df["person_index"]
@@ -420,18 +439,20 @@ data = pd.DataFrame(
 
 print(data.head())
 
-# Save data as we go - create a backup in case the script crashes
 try:
-    data.to_csv("data1.csv")
-    print("Data saved successfully to data1.csv")
+    # Get a filename that doesn't exist yet
+    filename = get_available_filename("latest_result")
+    data.to_csv(filename)
+    print(f"Data saved successfully to {filename}")
 except Exception as e:
     print(f"Error saving data: {e}")
     # Try to save to a backup location
     try:
-        data.to_csv("data1_backup.csv")
-        print("Data saved to backup file data1_backup.csv")
-    except:
-        print("Could not save data to backup file")
+        backup_filename = get_available_filename("latest_result_backup")
+        data.to_csv(backup_filename)
+        print(f"Data saved to backup file {backup_filename}")
+    except Exception as e:
+        print(f"Could not save data to backup file: {e}")
 
 end_time = time.time()
 

@@ -128,7 +128,7 @@ wait = WebDriverWait(driver, 10)
 ################################################################################################################
 
 # making dataframe
-df = pd.read_csv("sample_index.csv")
+df = pd.read_csv("participant_ids.csv")
 city_index = df["city_index"]
 sample_index = df["sample_index"]
 person_index = df["person_index"]

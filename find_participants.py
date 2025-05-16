@@ -482,7 +482,7 @@ data = pd.DataFrame(
 )
 
 print(data.head())
-data.to_csv("sample_index.csv")
+data.to_csv("participants_ids.csv")
 
 end_time = time.time()
 
