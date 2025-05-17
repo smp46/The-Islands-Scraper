@@ -16,10 +16,20 @@ cleanup() {
 trap cleanup SIGINT SIGTERM EXIT
 
 # Linux with systemd
-echo "Acquiring wake lock..."
-systemd-inhibit --what=sleep:idle --who="$0" --why="Running sequential Python scripts" --mode=block sleep infinity &
-INHIBIT_PID=$!
-echo "Wake lock acquired (PID: $INHIBIT_PID)"
+stay_awake=false
+for arg in "$@"; do
+    if [ "$arg" = "--stay-awake" ]; then
+        stay_awake=true
+        break
+    fi
+done
+
+if $stay_awake; then
+    echo "Acquiring wake lock..."
+    systemd-inhibit --what=sleep:idle --who="$0" --why="Running sequential Python scripts" --mode=block sleep infinity &
+    INHIBIT_PID=$!
+    echo "Wake lock acquired (PID: $INHIBIT_PID)"
+fi
 
 echo "Starting study."
 
