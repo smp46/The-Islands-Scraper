@@ -153,7 +153,7 @@ for cityindex in range(NUM_CITIES):
 
     ### PERFORM SOME TASK HERE ###
     isl = driver.find_element(By.ID, "title")
-    print("Cached " + isl.text.toLower().capitalize())
+    print("Cached " + isl.text.capitalize())
 
     houses = driver.find_elements(By.CLASS_NAME, "house")
 
