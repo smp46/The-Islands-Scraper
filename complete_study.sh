@@ -51,22 +51,12 @@ echo "Giving cannabis task..."
 python3 do_task.py cannabis
 echo "Cannabis is being consumed"
 
-echo "Sleeping to let tasks complete..."
-sleep 120
-
-echo "Collecting results..."
-python3 collect_latest_result.py
-echo "Results collected"
-
-echo "Sleeping..."
+echo "Waiting for 45 minutes..."
 sleep 2700
 
-echo "Giving cannabis task..."
-python3 do_task.py cannabis
-echo "Cannabis is being consumed"
-
-echo "Sleeping to let tasks complete..."
-sleep 120
+echo "Giving ruler task..."
+python3 do_task.py ruler
+echo "Rulers are being dropped"
 
 echo "Collecting results..."
 python3 collect_latest_result.py
@@ -75,12 +65,9 @@ echo "Results collected"
 echo "Sleeping..."
 sleep 6000
 
-echo "Giving cannabis task..."
-python3 do_task.py cannabis
-echo "Cannabis is being consumed"
-
-echo "Sleeping to let tasks complete..."
-sleep 120
+echo "Giving ruler task..."
+python3 do_task.py ruler
+echo "Rulers are being dropped"
 
 echo "Collecting results..."
 python3 collect_latest_result.py
