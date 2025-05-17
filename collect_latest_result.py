@@ -54,10 +54,14 @@ def get_available_filename(base_name, extension=".csv"):
 ## LOGIN
 ################################################################################################################
 
-# Setup Chrome options
 chrome_options = Options()
 chrome_options.add_experimental_option("detach", True)
-chrome_options.add_argument("--start-maximized")  # Keep the maximized window setting
+chrome_options.add_argument("--start-maximized")  # Still useful for viewport size
+chrome_options.add_argument("--headless=new")  # This runs Chrome in background
+chrome_options.add_argument("--disable-gpu")  # Recommended for headless
+chrome_options.add_argument("--window-size=1920,1080")  # Set viewport explicitly
+chrome_options.add_argument("--no-sandbox")
+chrome_options.add_argument("--disable-dev-shm-usage")
 
 # Initialize the driver
 driver = webdriver.Chrome(options=chrome_options)
