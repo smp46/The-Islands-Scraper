@@ -1,13 +1,5 @@
 #!/usr/bin/env python3
 
-"""
-Random Sampling Function:
-- Choose a random city, a random house, and a random person
-- If the person isnt a working class citizen(age 15 to 64), then redraw
-- If participant declines, then redraw
-- obtain n = 220 samples
-"""
-
 ################################################################################################################
 ## IMPORTS
 ################################################################################################################
@@ -201,7 +193,7 @@ result_vec = []
 
 for df_count in range(0, SAMPLE_SIZE):
     try:
-        print(f"\nProcessing sample {df_count+1}/{SAMPLE_SIZE}")
+        print(f"\nProcessing participant {df_count+1}/{SAMPLE_SIZE}")
 
         ## window check 1
         # Store the ID of the original window
@@ -399,7 +391,7 @@ for df_count in range(0, SAMPLE_SIZE):
         name_vec.append(name)
         result_vec.append(result)
 
-        print(f"Collected data for sample {df_count+1}: {name}, result {result}")
+        print(f"Collected latest result for participant {df_count+1}: {name}, result {result}")
 
         # Return to home page
         try:
@@ -420,7 +412,7 @@ for df_count in range(0, SAMPLE_SIZE):
             time.sleep(2)
 
     except Exception as e:
-        print(f"Unexpected error processing sample {df_count+1}: {e}")
+        print(f"Unexpected error processing result for participant {df_count+1}: {e}")
 
         # Add empty data for skipped entries
         name_vec.append("NA")
@@ -464,7 +456,7 @@ if __name__ == "__main__":
     execution_time = end_time - start_time
     print("Script completed normally.")
     print("Script runtime: " + str(datetime.timedelta(seconds=execution_time)))
-    print(f"Data collected for {len(data)} samples")
+    print(f"Results collected for {len(data)} participants")
 
     time.sleep(5)
     driver.close()

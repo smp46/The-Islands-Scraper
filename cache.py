@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-'''
+"""
 caching function that stores all of the indices of cities
 
 speeds up the lookup time drastically
-'''
+"""
 
 ################################################################################################################
 ## IMPORTS
@@ -31,7 +31,6 @@ start_time = time.time()
 ################################################################################################################
 
 # Setup Chrome options
-# Setup Chrome options
 chrome_options = Options()
 chrome_options.add_experimental_option("detach", True)
 chrome_options.add_argument("--start-maximized")  # Still useful for viewport size
@@ -46,11 +45,13 @@ driver = webdriver.Chrome(options=chrome_options)
 
 # Read session cookie from file
 try:
-    with open('session_cookie', 'r') as cookie_file:
+    with open("session_cookie", "r") as cookie_file:
         session_id = cookie_file.read().strip()
         print(f"Read session ID from file: {session_id}")
 except FileNotFoundError:
-    print("Error: session_cookie file not found. Please create this file with your session ID.")
+    print(
+        "Error: session_cookie file not found. Please create this file with your session ID."
+    )
     driver.quit()
     exit(1)
 except Exception as e:
@@ -60,7 +61,9 @@ except Exception as e:
 
 # Check if session ID is empty
 if not session_id:
-    print("Error: session_cookie file is empty. Please add your session ID to this file.")
+    print(
+        "Error: session_cookie file is empty. Please add your session ID to this file."
+    )
     driver.quit()
     exit(1)
 
@@ -78,23 +81,27 @@ print(phpsessid_cookie)
 if not phpsessid_cookie:
     print("PHPSESSID cookie not found, creating new one")
     # Use session ID from file
-    driver.add_cookie({
-        'name': 'PHPSESSID',
-        'value': session_id,
-        'path': '/',
-        'domain': 'islands.smp.uq.edu.au'
-    })
+    driver.add_cookie(
+        {
+            "name": "PHPSESSID",
+            "value": session_id,
+            "path": "/",
+            "domain": "islands.smp.uq.edu.au",
+        }
+    )
 else:
     # Modify the existing cookie
     print(f"Found existing PHPSESSID: {phpsessid_cookie['value']}")
     # Replace with session ID from file
     driver.delete_cookie("PHPSESSID")
-    driver.add_cookie({
-        'name': 'PHPSESSID',
-        'value': session_id,
-        'path': '/',
-        'domain': 'islands.smp.uq.edu.au'
-    })
+    driver.add_cookie(
+        {
+            "name": "PHPSESSID",
+            "value": session_id,
+            "path": "/",
+            "domain": "islands.smp.uq.edu.au",
+        }
+    )
 
 # Verify the cookie was set
 updated_cookie = driver.get_cookie("PHPSESSID")
@@ -123,7 +130,7 @@ buttons = []
 for j in cities:
     buttons.append(j.find_element(By.XPATH, './/div[starts-with(@class, "town town")]'))
 
-assert(len(buttons) == NUM_CITIES)
+assert len(buttons) == NUM_CITIES
 
 # cache datastructure
 cache = []
@@ -134,17 +141,19 @@ cache = []
 ################################################################################################################
 
 for cityindex in range(NUM_CITIES):
-    #reprocess island page
+    # reprocess island page
     cities = driver.find_elements(By.XPATH, '//a[starts-with(@href, "village")]')
     buttons = []
     for j in cities:
-        buttons.append(j.find_element(By.XPATH, './/div[starts-with(@class, "town town")]'))
+        buttons.append(
+            j.find_element(By.XPATH, './/div[starts-with(@class, "town town")]')
+        )
     buttons[cityindex].click()
     driver.implicitly_wait(3)
 
     ### PERFORM SOME TASK HERE ###
     isl = driver.find_element(By.ID, "title")
-    print("touched " + isl.text)
+    print("Cached " + isl.text.toLower().capitalize())
 
     houses = driver.find_elements(By.CLASS_NAME, "house")
 
@@ -158,7 +167,7 @@ for cityindex in range(NUM_CITIES):
     for house, indic in zip(houseids, trueindics):
         hashid[house] = int(indic)
 
-    ### find the number of houses 
+    ### find the number of houses
     NUM_HOUSES = houseids[-1]
 
     cache.append(hashid)
@@ -172,14 +181,14 @@ for cityindex in range(NUM_CITIES):
 print("cities cached: " + str(len(cache)))
 
 # save the cache into a file
-file = open(r'cache', 'wb')
+file = open(r"cache", "wb")
 pickle.dump(cache, file)
 file.close()
 
 
 end_time = time.time()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     execution_time = end_time - start_time
     print("Script completed normally.")
     print("Script runtime: " + str(datetime.timedelta(seconds=execution_time)))

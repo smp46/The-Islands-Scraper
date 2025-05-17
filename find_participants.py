@@ -311,10 +311,10 @@ while people_sampled < SAMPLE_SIZE:
             while attempts < max_attempts:
                 rng_house = np.random.randint(1, high=NUM_HOUSES)
                 if str(rng_house) in setids:
-                    print("sample house " + str(rng_house))
+                    print("Participant house " + str(rng_house))
                     break
                 else:
-                    print("Invalid House. resampling")
+                    print("Invalid House. Searching again.")
                     attempts += 1
 
             if attempts >= max_attempts:
@@ -435,7 +435,7 @@ while people_sampled < SAMPLE_SIZE:
                                                             housers.append(SAMPLE_INDEX)
                                                             persons.append(rng_person)
                                                             print(
-                                                                f"Sampled {people_sampled} of {SAMPLE_SIZE} people"
+                                                                f"Found {people_sampled} of {SAMPLE_SIZE} participants"
                                                             )
                                                         else:
                                                             print(
@@ -510,7 +510,7 @@ if __name__ == "__main__":
     execution_time = end_time - start_time
     print("Script completed normally.")
     print("Script runtime: " + str(datetime.timedelta(seconds=execution_time)))
-    print(f"Successfully sampled {people_sampled} people")
+    print(f"Successfully found {people_sampled} participants.")
 
     time.sleep(10)
     driver.close()

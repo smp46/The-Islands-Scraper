@@ -554,13 +554,13 @@ try:
     person_index = df["person_index"]
 
     SAMPLE_SIZE = len(df)
-    print(f"Loaded {SAMPLE_SIZE} samples from participant_ids.csv")
+    print(f"Loaded {SAMPLE_SIZE} participants from participant_ids.csv")
 except FileNotFoundError:
     print("Error: participants_id.csv not found. Please create this file first.")
     driver.quit()
     exit(1)
 except Exception as e:
-    print(f"Error loading sample data: {e}")
+    print(f"Error loading participant data: {e}")
     driver.quit()
     exit(1)
 
@@ -661,7 +661,7 @@ time.sleep(1)
 
 for df_count in range(0, SAMPLE_SIZE):
     try:
-        print(f"\nProcessing sample {df_count+1}/{SAMPLE_SIZE}")
+        print(f"\nAssigning task to participant {df_count+1}/{SAMPLE_SIZE}")
 
         # Make sure we're on the index page
         if "index.php" not in driver.current_url:
@@ -877,7 +877,7 @@ for df_count in range(0, SAMPLE_SIZE):
             print(f"Error returning to index: {e}")
 
     except Exception as e:
-        print(f"Unexpected error processing sample {df_count+1}: {e}")
+        print(f"Unexpected error processing participant {df_count+1}: {e}")
         tasks_failed += 1
 
         # Try to recover
@@ -911,7 +911,7 @@ execution_time = end_time - start_time
 print("\n" + "=" * 70)
 print(f"TASK EXECUTION SUMMARY: {selected_task}".center(70))
 print("=" * 70)
-print(f"Total samples attempted: {SAMPLE_SIZE}")
+print(f"Total tasks attempted: {SAMPLE_SIZE}")
 print(f"Successfully completed tasks: {tasks_completed}")
 print(f"Failed tasks: {tasks_failed}")
 print(f"Success rate: {tasks_completed/SAMPLE_SIZE*100:.1f}%")
